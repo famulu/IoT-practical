@@ -4,27 +4,46 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Real Time Sensor Display Using Python, Flask, Flask-SocketIO</title>
-    
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js" integrity="sha512-bLT0Qm9VnAYZDflyKcBaQ2gg0hSYNQrJ8RilYldYQ1FxQYoCLtUjuuRuZo+fjqhx/qtq/1itJ0C2ejDxltZVFg==" crossorigin="anonymous"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/3.0.4/socket.io.js" integrity="sha512-aMGMvNYu8Ue4G+fHa359jcPb1u+ytAF+P2SCb+PxrjCdO3n3ZTxJ30zuH39rimUggmTwmh2u7wvQsDTHESnmfQ==" crossorigin="anonymous"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.7.1/chart.min.js"></script>
+
+    <script src="{{ url_for('static', filename='js/socket.io.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/chart.min.js') }}"></script>
     <link
-      href="//mincss.com/entireframework.min.css"
+      href="{{ url_for('static', filename = 'css/entireframework.min.css') }}"
       rel="stylesheet"
-      type="text/css"
     />
     <link href="{{url_for('static', filename = 'css/app.css')}}" rel="stylesheet">
+    <script src="{{ url_for('static', filename = 'js/app.js') }}"></script>
   </head>
   <body>
-    <script type="text/javascript" src="{{ url_for('static', filename = 'js/app.js') }}"></script>
-
-    <nav class="nav" tabindex="-1" onclick="this.focus()">
-      <div class="container">
-        <a class="pagename current" href="#">www.donskytech.com</a>
-      </div>
-    </nav>
-    <button class="btn-close btn btn-sm">×</button>
     <div class="container">
+        {% for actuator in actuators %}
+        <p><strong>{{ actuator }}</strong>
+        {% if actuators[actuator] == 1 %}
+          {% set id = actuator + 'State' %}
+          is currently <strong id="{{actuator}}State">on</strong>
+          <a href="/{{actuator}}/off" role="button" id="{{actuator}}">Turn off</a>
+          {% else %}
+          is currently <strong id="{{actuator}}State">off</strong>
+          <a href="/{{actuator}}/on" role="button" id="{{actuator}}">Turn on</a>
+          {% endif %}
+        </p>
+        {% endfor %}
+
+        <p>
+          <label for="threshold">Threshold Value: <output id="thresholdValue">{{ threshold }}</output></label>
+        </p>
+        <input type="range" min="0" max="1023" id="threshold" value="{{ threshold }}" style="padding: 0;">
+    </div>
+    <div class="container">
+      <h3>Commands</h2>
+      <p>Buzzer: <a href="/buzzer/on">TURN ON</a></p>
+      <p> Buzzer <a href="/buzzer/off"> TURN OFF </a></p>
+      <p> Fan <a href="/fan/on"> TURN ON </a></p>
+      <p> Fan <a href="/fan/off"> TURN OFF </a></p>
+    </div>
+
+    <div class="container">
+      <p>Push Button Value: <output id="pushButton">0</output></p>
       <div class="hero">
         <h1>Real Time Sensor Display</h1>
         <div class="chart-container">
